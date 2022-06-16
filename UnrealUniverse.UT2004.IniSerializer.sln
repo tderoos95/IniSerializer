@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32526.322
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnrealUniverse.UT2004.IniSerializer", "UnrealUniverse.UT2004.IniSerializer.csproj", "{F383D201-D733-4906-A172-C88C778AE725}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F383D201-D733-4906-A172-C88C778AE725}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F383D201-D733-4906-A172-C88C778AE725}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F383D201-D733-4906-A172-C88C778AE725}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F383D201-D733-4906-A172-C88C778AE725}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DAC6C96D-77A4-49C2-80A2-88849AD69E27}
+	EndGlobalSection
+EndGlobal
