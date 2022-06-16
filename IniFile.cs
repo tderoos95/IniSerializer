@@ -72,7 +72,7 @@ namespace UnrealUniverse.UT2004.IniSerializer
 
         private static string currentSectionName = string.Empty;
 
-        public List<TType> GetList<TType>(dynamic dynamic)
+        public List<TType> GetList<TType>(object dynamic)
         {
             if (dynamic == null)
             {
@@ -298,8 +298,8 @@ namespace UnrealUniverse.UT2004.IniSerializer
 
         public PerObjectConfigDataObject GetOrCreatePerObjectConfigDataObject(string name, string dataObjectTypeName)
         {
-            PerObjectConfigDataObject dataObject = DataObjects.FirstOrDefault(x => 
-            x.DataObjectName == name && 
+            PerObjectConfigDataObject dataObject = DataObjects.FirstOrDefault(x =>
+            x.DataObjectName == name &&
             x.DataObjectType == dataObjectTypeName);
 
             if (dataObject == null)
@@ -379,9 +379,9 @@ namespace UnrealUniverse.UT2004.IniSerializer
         }
 
         // todo remove unnecessary dynamic types
-        private dynamic InterpretStringAsObject(string value)
+        private object InterpretStringAsObject(string value)
         {
-            dynamic dataObject = new ExpandoObject();
+            object dataObject = new ExpandoObject();
             IDictionary<string, object> data = (IDictionary<string, object>)dataObject;
 
             value = value.Substring(1, value.Length - 2); // remove round hooks

@@ -3,12 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using UnrealUniverse.UT2004.IniSerializer.Attributes;
 using UnrealUniverse.UT2004.IniSerializer.Models;
 
@@ -23,7 +18,7 @@ namespace UnrealUniverse.UT2004.IniSerializer
         public static void RegisterSectionDefinition<TType>(string key)
             where TType : SectionDataObject
         {
-            if(!SectionDefinitions.ContainsKey(key))
+            if (!SectionDefinitions.ContainsKey(key))
                 SectionDefinitions.Add(key, typeof(TType));
         }
 
@@ -46,7 +41,7 @@ namespace UnrealUniverse.UT2004.IniSerializer
                 DataObjectDefinitions.Add(key, typeof(TType));
         }
 
-        public static TDestObject SerializeDynamicToObject<TDestObject>(dynamic dataSection)
+        public static TDestObject SerializeDynamicToObject<TDestObject>(object dataSection)
                 where TDestObject : new()
         {
             TDestObject serializedObject = new TDestObject();
@@ -62,9 +57,9 @@ namespace UnrealUniverse.UT2004.IniSerializer
             arrayAttribute?.ApplyAttributeForLoad(list, listItemType);
         }
 
-        public static TDestObject SerializeDynamicToObject<TDestObject>(dynamic dataSection, TDestObject serializedObject)
+        public static TDestObject SerializeDynamicToObject<TDestObject>(object dataSection, TDestObject serializedObject)
         {
-            IDictionary<string, object> data = dataSection;
+            IDictionary<string, object> data = (IDictionary<string, object>)dataSection;
 
             foreach (var pair in data)
             {
@@ -83,22 +78,22 @@ namespace UnrealUniverse.UT2004.IniSerializer
                         }
                         catch (IndexOutOfRangeException)
                         {
-                            throw new InvalidCastException(string.Format("Expected type for {0}.{1} is List<{2}>, but type is defined as {2} instead", 
+                            throw new InvalidCastException(string.Format("Expected type for {0}.{1} is List<{2}>, but type is defined as {2} instead",
                                 propertyInfo.DeclaringType.Name, pair.Key, listType.Name));
                         }
-                        catch(Exception exception)
+                        catch (Exception exception)
                         {
                             throw exception;
                         }
 
                         IList createdList = Activator.CreateInstance(listType) as IList;
 
-                        foreach(dynamic entry in (List<object>)pair.Value)
+                        foreach (object entry in (List<object>)pair.Value)
                         {
-                            dynamic listItem = null;
+                            object listItem = null;
 
                             // check for structs, structs have no constructor
-                            if(listItemType == typeof(String))
+                            if (listItemType == typeof(String))
                             {
                                 if (string.IsNullOrEmpty((String)entry))
                                     listItem = string.Empty;
@@ -122,9 +117,9 @@ namespace UnrealUniverse.UT2004.IniSerializer
                             // class definitions, anything with a constructor
                             else
                             {
-                                listItem = (dynamic)Activator.CreateInstance(listItemType);
+                                listItem = (object)Activator.CreateInstance(listItemType);
 
-                                dynamic serializedListItem = SerializeDynamicToObject(entry, listItem);
+                                object serializedListItem = SerializeDynamicToObject(entry, listItem);
                                 createdList.Add(serializedListItem);
                             }
                         }
@@ -132,7 +127,7 @@ namespace UnrealUniverse.UT2004.IniSerializer
                         ApplyAttributesForLoad(propertyInfo, createdList, listItemType);
                         propertyInfo.SetValue(serializedObject, createdList);
                     }
-                    else if(pair.Value.GetType() == typeof(ExpandoObject))
+                    else if (pair.Value.GetType() == typeof(ExpandoObject))
                     {
                         bool isListType = propertyInfo.PropertyType.IsArray || propertyInfo.PropertyType.IsGenericType;
 
@@ -142,13 +137,13 @@ namespace UnrealUniverse.UT2004.IniSerializer
                             Type listItemType = propertyInfo.PropertyType.GetGenericArguments()[0];
 
                             IList createdList = Activator.CreateInstance(listType) as IList;
-                            dynamic listItem = (dynamic)Activator.CreateInstance(listItemType);
+                            object listItem = Activator.CreateInstance(listItemType);
                             Serializer.SerializeDynamicToObject(pair.Value, listItem);
 
                             createdList.Add(listItem);
                             ApplyAttributesForLoad(propertyInfo, createdList, listItemType);
                             propertyInfo.SetValue(serializedObject, createdList);
-                            
+
                             continue;
                         }
 
@@ -164,7 +159,7 @@ namespace UnrealUniverse.UT2004.IniSerializer
                             Type listItemType = propertyInfo.PropertyType.GetGenericArguments()[0];
 
                             IList createdList = Activator.CreateInstance(listType) as IList;
-                            dynamic listItem;
+                            object listItem;
 
                             if (listItemType == typeof(String))
                             {
@@ -189,7 +184,7 @@ namespace UnrealUniverse.UT2004.IniSerializer
                             }
                             else
                             {
-                                listItem = (dynamic)Activator.CreateInstance(listItemType);
+                                listItem = (object)Activator.CreateInstance(listItemType);
                                 Serializer.SerializeDynamicToObject(pair.Value, listItem);
                             }
 
@@ -208,10 +203,10 @@ namespace UnrealUniverse.UT2004.IniSerializer
             return serializedObject;
         }
 
-        public static List<TListType> SerializeDynamicToList<TListType>(dynamic source)
+        public static List<TListType> SerializeDynamicToList<TListType>(object source)
             where TListType : new()
         {
-            List<dynamic> sourceList = (List<dynamic>)source;
+            List<object> sourceList = (List<object>)source;
             List<TListType> list = new List<TListType>();
 
             foreach (var entry in sourceList)
@@ -232,9 +227,9 @@ namespace UnrealUniverse.UT2004.IniSerializer
             arrayAttribute?.ApplyAttributeForSave(list, listItemType);
         }
 
-        public static dynamic SerializeObjectToDynamic(object dataSource)
+        public static object SerializeObjectToDynamic(object dataSource)
         {
-            dynamic dynamicData = new ExpandoObject();
+            object dynamicData = new ExpandoObject();
             var dataSectionDictionary = (IDictionary<string, object>)dynamicData;
 
             var propertyInfos = dataSource.GetType().GetProperties( // todo do I need all these flags?
@@ -270,7 +265,7 @@ namespace UnrealUniverse.UT2004.IniSerializer
                             }
                             else
                             {
-                                dynamic serializedEntry = SerializeObjectToDynamic(entry);
+                                object serializedEntry = SerializeObjectToDynamic(entry);
                                 objectList.Add(serializedEntry);
                             }
                         }
