@@ -63,8 +63,9 @@ namespace UnrealUniverse.UT2004.IniSerializer
 
             foreach (var pair in data)
             {
-                PropertyInfo propertyInfo = typeof(TDestObject).GetProperty(pair.Key);
-
+                // doesn't work anymore since migrating from .NET F4.7.2 to 6.0
+                // typeof(TDestObject).GetProperty(pair.Key); 
+                PropertyInfo propertyInfo = serializedObject.GetType().GetProperty(pair.Key); 
                 if (propertyInfo != null)
                 {
                     if (pair.Value.GetType() == typeof(List<object>))

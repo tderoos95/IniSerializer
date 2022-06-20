@@ -11,13 +11,11 @@ namespace UnrealUniverse.UT2004.IniSerializer
 {
     public class IniFile
     {
-        private readonly Encoding DefaultEncoding = Encoding.GetEncoding(1252); // ANSI
+        //private readonly Encoding DefaultEncoding = Encoding.GetEncoding(1252); // ANSI
 
         public List<SectionDataObject> Sections { get; set; }
 
         public List<PerObjectConfigDataObject> DataObjects { get; set; }
-
-        public FileInfo FileInfo { get; set; }
 
         private const string AssignValueCharacter = "=";
 
@@ -30,10 +28,10 @@ namespace UnrealUniverse.UT2004.IniSerializer
             InitializeVariables();
         }
 
-        public IniFile(string path)
+        public IniFile(string contents)
         {
             InitializeVariables();
-            Load(path);
+            Load(contents);
         }
 
         public TSectionType GetSection<TSectionType>()
@@ -95,14 +93,19 @@ namespace UnrealUniverse.UT2004.IniSerializer
                 return list;
             }
         }
-        public virtual void Load(string path)
-        {
-            FileInfo = new FileInfo(path);
 
-            if (!FileInfo.Exists)
+        public virtual void Load(FileInfo file)
+        {
+            if (!file.Exists)
                 return;
 
-            string[] lines = File.ReadAllLines(path, DefaultEncoding);
+            Load(File.ReadAllText(file.FullName));
+        }
+
+
+        public virtual void Load(string contents)
+        {
+            string[] lines = contents.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);//File.ReadAllLines(path, DefaultEncoding);
             currentSectionName = string.Empty;
             KeyValuePair<string, string>? currentPerObjectConfig = null;
 
@@ -231,10 +234,10 @@ namespace UnrealUniverse.UT2004.IniSerializer
                 }
             }
 
-            ProcessDataForLoad();
+            ProcessLoadedData();
         }
 
-        protected virtual void ProcessDataForLoad()
+        protected virtual void ProcessLoadedData()
         {
             Sections.ForEach(x => x.SerializeToInstance());
             DataObjects.ForEach(x => x.SerializeToInstance());
@@ -537,7 +540,7 @@ namespace UnrealUniverse.UT2004.IniSerializer
             }
 
             string data = ExportToString();
-            File.WriteAllText(path, data, DefaultEncoding);
+            File.WriteAllText(path, data);
         }
 
         public string ExportToString()
